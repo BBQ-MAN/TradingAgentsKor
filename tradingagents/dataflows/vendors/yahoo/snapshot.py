@@ -37,7 +37,14 @@ def _verified_rows(symbol: str, as_of_date: str) -> pd.DataFrame:
     """
     # As reported: this snapshot is quoted by the agents as exact prices, so a
     # gap-filled cell would put the previous session's number under this date.
-    data = load_ohlcv(symbol, as_of_date, fill_gaps=False)
+    from tradingagents.dataflows.router import get_vendor
+
+    if get_vendor("core_stock_apis", "get_stock_data").split(",")[0].strip() == "kis":
+        from tradingagents.dataflows.vendors.kis import load_indicator_ohlcv
+
+        data = load_indicator_ohlcv(symbol, as_of_date)  # KIS rows are never gap-filled.
+    else:
+        data = load_ohlcv(symbol, as_of_date, fill_gaps=False)
     if data is None or data.empty:
         raise NoMarketDataError(symbol, normalize_symbol(symbol), "no price rows")
 

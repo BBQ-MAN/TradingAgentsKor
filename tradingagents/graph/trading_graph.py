@@ -125,7 +125,17 @@ class TradingAgentsGraph:
         graph regardless of entry point.
         """
         identity = resolve_instrument_identity(ticker)
-        return build_instrument_context(ticker, asset_type, identity, trade_date)
+        context = build_instrument_context(ticker, asset_type, identity, trade_date)
+        if self.config.get("market") == "KR":
+            context += (
+                "\nMarket: Korean domestic equities (KRX). Price currency: KRW (원); "
+                "dates and sessions use Asia/Seoul. Preserve the six-digit stock code "
+                "and .KS (KOSPI) / .KQ (KOSDAQ) exchange suffix. KIS supplies adjusted "
+                "daily OHLCV and technical indicators; financials/news use the separately "
+                "configured providers. Report unavailable data explicitly. A daily bar "
+                "for today may still be incomplete. Recommendations do not execute orders."
+            )
+        return context
 
     def _memory_as_of(self, trade_date) -> str | None:
         """Point-in-time cutoff for past-context lessons (#1251).

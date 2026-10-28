@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 
 _TRADINGAGENTS_HOME = os.path.join(os.path.expanduser("~"), ".tradingagents")
 
@@ -207,3 +208,20 @@ def build_default_config() -> dict:
 
 
 DEFAULT_CONFIG = build_default_config()
+
+
+def korean_config(config: dict | None = None) -> dict:
+    """Domestic KRX analysis: KIS prices, explicit Yahoo suffixes for enrichment."""
+    result = deepcopy(DEFAULT_CONFIG if config is None else config)
+    result["market"] = "KR"
+    result["output_language"] = os.getenv("TRADINGAGENTS_OUTPUT_LANGUAGE") or "Korean"
+    result["data_vendors"].update(core_stock_apis="kis", technical_indicators="kis")
+    result["global_news_queries"] = [
+        "한국 증시 코스피 코스닥 기업 실적", "한국은행 기준금리 원달러 환율 수출",
+        "한국 반도체 자동차 이차전지 산업",
+    ]
+    return result
+
+
+if os.getenv("TRADINGAGENTS_MARKET", "").upper() == "KR":
+    DEFAULT_CONFIG = korean_config(DEFAULT_CONFIG)

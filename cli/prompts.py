@@ -16,7 +16,7 @@ from tradingagents.llm_clients.api_key_env import get_api_key_env
 from tradingagents.llm_clients.model_catalog import get_model_options
 from tradingagents.llm_clients.openai_client import OPENAI_COMPATIBLE_PROVIDERS, SIGNED_IN_PROVIDERS
 
-TICKER_INPUT_EXAMPLES = "SPY, 0700.HK, BTC-USD"
+TICKER_INPUT_EXAMPLES = "005930.KS, 247540.KQ, SPY, 0700.HK, BTC-USD"
 
 ANALYST_CHOICES = [
     ("Market Analyst", AnalystType.MARKET),
@@ -77,13 +77,31 @@ def get_ticker() -> str:
         console.print("\n[red]No ticker symbol provided. Exiting...[/red]")
         exit(1)
 
+    if _korean_market():
+        return _check_korean_ticker(ticker.strip() or "005930.KS")
     return normalize_ticker_symbol(ticker) if ticker.strip() else "SPY"
+
+
+def _korean_market() -> bool:
+    return os.getenv("TRADINGAGENTS_MARKET", "").upper() == "KR"
+
+
+def _check_korean_ticker(ticker: str) -> str:
+    """KIS needs the six-digit code; Yahoo enrichment needs the .KS/.KQ suffix."""
+    from tradingagents.dataflows.vendors.kis import normalize_kis_symbol
+
+    normalize_kis_symbol(ticker)
+    if not ticker.upper().endswith((".KS", ".KQ")):
+        raise ValueError("한국 종목은 KOSPI .KS / KOSDAQ .KQ를 명시하세요.")
+    return normalize_ticker_symbol(ticker)
 
 
 def parse_ticker(value: str) -> str:
     """A ticker given on the command line, canonical; empty or malformed is refused."""
     if not value.strip() or not is_valid_ticker_input(value):
         raise ValueError(f"not a ticker symbol: {value!r} (e.g. {TICKER_INPUT_EXAMPLES})")
+    if _korean_market():
+        return _check_korean_ticker(value.strip())
     return normalize_ticker_symbol(value)
 
 

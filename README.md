@@ -1,3 +1,23 @@
+## 한국 증시 · 한국투자증권(KIS) 연동
+
+간단한 데스크톱 GUI는 다음처럼 실행합니다.
+
+```bash
+.venv/bin/python gui.py
+```
+
+GUI에서 분석 결과를 확인하고 주문을 미리보기할 수 있습니다. `실전 주문 전송`을
+체크하면 확인 창을 거친 뒤에만 `--execute` 주문이 전송됩니다. GUI도 CLI와 같은
+중복 주문 방지 기록과 KIS 환경 설정을 사용합니다.
+
+국내주식 분석과 실전/모의 현금 매수·매도를 지원합니다. 설정 및 실행 예시는
+[한국투자증권 사용 안내](docs/KIS_KR.md)를 참고하세요.
+
+- KIS: KRX 수정 일봉, 기술지표, 숫자 검증 스냅샷, 현금 주문, 주문체결 조회
+- 한국 종목: KOSPI `005930.KS`, KOSDAQ `247540.KQ`; KIS 조회·주문 단독 사용 시 6자리 코드도 허용
+- 재무제표·뉴스·기업 식별 및 수익률 회고는 기존 Yahoo Finance 등 별도 공급자를 사용합니다.
+- `python main.py --ticker 005930.KS`는 국내주식 분석을 실행합니다. 주문은 별도 명령으로 실행합니다.
+
 <p align="center">
   <img src="tradingagents/assets/tauric-logo.svg" width="60%" alt="Tauric Research">
 </p>
